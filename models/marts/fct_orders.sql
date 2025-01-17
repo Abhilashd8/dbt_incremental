@@ -1,0 +1,68 @@
+/* This model will find the number of orders placed each day*/
+
+{{
+    config(
+        materialized = 'incremental'
+    )
+}}
+
+with  orders as (
+select * from {{ ref('stg_orders') }}
+where order_status = 'placed'
+
+),
+
+payments as (
+    select * from {{ ref('stg_payments') }}
+    where payment_status = 'success'
+),
+
+customers as (
+    select * from {{ ref('stg_customers') }}
+),
+
+customer_orders as (
+    select customers.customer_name,
+        customers.customer_id, 
+        orders.order_id,
+        orders.order_placed_at,
+        orders.order_status
+    from orders
+    left join customers on customers.customer_id = orders.customer_id
+),
+
+find_orders as (
+    select customer_name,
+        customer_id,
+        customer_orders.order_id as order_id,
+        order_placed_at,
+        order_status,
+        payments.payment_status,
+        count(customer_orders.order_id) over(partition by customer_orders.customer_id,order_placed_at order by order_placed_at) as total_orders_placed
+    from customer_orders 
+    join payments on customer_orders.order_id = payments.order_id
+    order by order_placed_at desc
+    
+    
+),
+
+final as (
+    select customer_name,
+    customer_id,
+    order_id, 
+    order_placed_at,
+    order_status,
+    payment_status,
+    total_orders_placed
+    from find_orders
+)
+select * from final 
+{%if is_incremental() %}
+ where order_placed_at >= (select max(order_placed_at) from {{ this }})
+{% endif %}
+--where order_id = 100
+
+
+
+
+
