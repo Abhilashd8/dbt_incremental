@@ -53,7 +53,9 @@ final as (
     order_placed_at,
     order_status,
     payment_status,
-    total_orders_placed
+    total_orders_placed,
+    current_timestamp as sys_ins_dttm,
+    current_timestamp as sys_upd_dttm
     from find_orders
 )
 select * from final 
