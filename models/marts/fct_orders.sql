@@ -2,7 +2,10 @@
 
 {{
     config(
-        materialized = 'incremental'
+        materialized = 'incremental',
+        unique_key = 'order_id',
+        on_schema_change = 'sync_all_columns'
+
     )
 }}
 
@@ -46,23 +49,25 @@ find_orders as (
     
 ),
 
+--below CTE will remove the duplicates that are going to final table
 final as (
-    select customer_name,
+    select customer_id || '~'||order_id as cust_ord_intgr_id,
     customer_id,
     order_id, 
+    customer_name,
     order_placed_at,
     order_status,
     payment_status,
     total_orders_placed,
     current_timestamp as sys_ins_dttm,
     current_timestamp as sys_upd_dttm
-    from find_orders
+    from find_orders,
+    qualify(row_number() over(partition by order_id order by order_placed_at desc)) = 1
 )
 select * from final 
 {%if is_incremental() %}
  where order_placed_at >= (select max(order_placed_at) from {{ this }})
 {% endif %}
---where order_id = 100
 
 
 
