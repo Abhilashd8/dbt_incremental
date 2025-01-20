@@ -1,0 +1,25 @@
+version: 2
+
+sources:
+  - name: jaffle_shop
+    database: raw
+    schema: jaffle_shop
+    tables:
+      - name: customers
+        description: This table can contain the customer details
+        columns:
+          - name: id
+            description: primary key of the customers table
+            tests:
+              - unique
+              - not_null        
+          
+      - name: orders
+        description: This table can contain the order details
+        columns:
+          - name: id 
+            description: primary key of the orders table
+            tests:
+              - unique
+              - not_null
+                  
