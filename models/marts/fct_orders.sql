@@ -4,9 +4,14 @@
     config(
         materialized = 'incremental',
         unique_key = 'order_id',
-        on_schema_change = 'sync_all_columns'
-
-    )
+        on_schema_change = 'sync_all_columns',
+        pre_hook = ('delete from {{ this }} trg
+                        where trg.order_id not in (
+                            select orders.order_id from {{ ref("stg_orders")}} orders
+                            where orders.order_id is not null)'
+                        )
+            )
+        
 }}
 
 with  orders as (
@@ -62,7 +67,7 @@ final as (
     '-1' as is_deleted,
     current_timestamp as sys_ins_dttm,
     current_timestamp as sys_upd_dttm
-    from find_orders,
+    from find_orders
     qualify(row_number() over(partition by order_id order by order_placed_at desc)) = 1
 )
 select * from final 
