@@ -59,6 +59,7 @@ final as (
     order_status,
     payment_status,
     total_orders_placed,
+    '-1' as is_deleted,
     current_timestamp as sys_ins_dttm,
     current_timestamp as sys_upd_dttm
     from find_orders,

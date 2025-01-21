@@ -4,7 +4,6 @@ paymentmethod as payment_method,
 status as payment_status,
 amount as amount_paid,
 created as updated_at,
-current_timestamp as sys_ins_dttm,
-current_timestamp as sys_upd_dttm,
-_batched_at
+_batched_at as sys_ins_dttm,
+current_timestamp as sys_upd_dttm
 from {{source("stripe","payment")}}
