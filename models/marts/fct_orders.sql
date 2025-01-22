@@ -4,7 +4,9 @@
     config(
         materialized = 'incremental',
         unique_key = 'order_id',
-        on_schema_change = 'sync_all_columns',
+        on_schema_change = 'fail',
+        incremental_strategy = 'merge',
+        merge_exclude_columns = ['sys_ins_dttm','sys_upd_dttm'],
         pre_hook = ('delete from {{ this }} trg
                         where trg.order_id not in (
                             select orders.order_id from {{ ref("stg_orders")}} orders
@@ -72,7 +74,7 @@ final as (
 )
 select * from final 
 {%if is_incremental() %}
- where order_placed_at >= (select max(order_placed_at) from {{ this }})
+ where order_placed_at > (select max(order_placed_at) from {{ this }})
 {% endif %}
 
 
