@@ -7,3 +7,10 @@ sources:
     tables:
       - name: payment
         description: This table can contain {{this}} information
+  - name: emp
+    description: another schema within the same raw(current) database
+    database: raw
+    schema: emp
+    tables:
+      - name: employee_details
+        tags: ['DBT_EMP']
