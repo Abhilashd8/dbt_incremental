@@ -14,3 +14,13 @@ sources:
     tables:
       - name: employee_details
         tags: ['DBT_EMP']
+      - name: employee_duplicate_records
+        tags: ['DBT_DUPS']
+  - name: src_json
+    description: sample json data for applying the flattening techniques
+    database: raw
+    schema: src_json
+    tables:
+      - name: tbl_data_json
+        description: this table contains the sample json data
+        tags: ['JSON_DATA']    
